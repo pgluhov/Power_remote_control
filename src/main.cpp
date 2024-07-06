@@ -21,6 +21,27 @@ TaskHandle_t Task6;
 TaskHandle_t Task7; 
 TaskHandle_t Task8; 
 
+void Task1code(void* pvParameters);
+void Init_Task1();
+void Task2code(void* pvParameters);
+void Init_Task2();
+void Task3code(void* pvParameters);
+void Init_Task3();
+void Task4code(void* pvParameters);
+void Init_Task4();
+void Task5code(void* pvParameters);
+void Init_Task5();
+void Task6code(void* pvParameters);
+void Init_Task6();
+void Task7code(void* pvParameters);
+void Init_Task7();
+void Task8code(void* pvParameters);
+void Init_Task8();
+
+
+void IRAM_ATTR onTimer();
+byte crc8_bytes(byte *buffer, byte size);
+
 #pragma pack(push, 1) // используем принудительное выравнивание
 struct Rx_buff{       // Структура приемник от клавиатуры
   int Row;

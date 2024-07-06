@@ -4,8 +4,10 @@
 #include <Arduino.h>
 
 // ========== ДЕФАЙНЫ НАСТРОЕК ==========
+String DEVICE_NAME = "Power remote LCD control"; // Имя девайса
+String CURRENT_VERSION_SW = "1.03";     // Текущая версиия прошивки 
+String VERSION_SW = "Версия ПО 1.03";   // Текст для отображения
 
-String REV_VERSION = "Firmware version 1.00"; 
 
 #define ENABLE_DEBUG_BLUETOOTH 0  // Если 1 то отладка через bluetooth
 #define ENABLE_DEBUG_UART      0  // Если 1 то отладка обмена по uart включена в SerialBT
