@@ -18,8 +18,8 @@ TaskHandle_t Task3;
 TaskHandle_t Task4; 
 TaskHandle_t Task5; 
 TaskHandle_t Task6; 
-TaskHandle_t Task7; 
-TaskHandle_t Task8; 
+//TaskHandle_t Task7; 
+//TaskHandle_t Task8; 
 
 void Task1code(void* pvParameters);
 void Init_Task1();
@@ -33,10 +33,10 @@ void Task5code(void* pvParameters);
 void Init_Task5();
 void Task6code(void* pvParameters);
 void Init_Task6();
-void Task7code(void* pvParameters);
-void Init_Task7();
-void Task8code(void* pvParameters);
-void Init_Task8();
+//void Task7code(void* pvParameters);
+//void Init_Task7();
+//void Task8code(void* pvParameters);
+//void Init_Task8();
 
 
 void IRAM_ATTR onTimer();
@@ -89,9 +89,9 @@ struct valueEEprom {  // структура с переменными
   int initKey; 
   char ssid[20];
   char pass[20];
-  uint8_t device_max_current[PSNUMBER];
-  uint8_t device_max_voltage[PSNUMBER]; 
-  uint8_t device_max_power[PSNUMBER]; 
+  int device_max_current[PSNUMBER];
+  int device_max_voltage[PSNUMBER]; 
+  int device_max_power[PSNUMBER]; 
   float volt_preset[PSNUMBER][COUNT_PRESET]; 
   float curr_protect[PSNUMBER];   
 }; 
@@ -194,7 +194,7 @@ void IRAM_ATTR onTimer(){ // Опрос энкодера
 }
 
 void Task1code(void* pvParameters) {  // Обработка принятых данных от клавиатуры
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task1code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif   
@@ -241,7 +241,7 @@ void Init_Task1() {  //создаем задачу
 }
 
 void Task2code(void* pvParameters) {  // Функции энкодера
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task2code running on core ");
   Serial.println(xPortGetCoreID());
   #endif  
@@ -327,7 +327,7 @@ void Init_Task2() {  //создаем задачу
 }
 
 void Task3code(void* pvParameters) {  // Работа LCD
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task3code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif 
@@ -452,7 +452,7 @@ void Init_Task3() {  //создаем задачу
 }
 
 void Task4code(void* pvParameters) {  // Выключение Отложенная задача 
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task4code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif
@@ -479,7 +479,7 @@ void Init_Task4() {  //создаем задачу
 }
 
 void Task5code(void* pvParameters) {  // Тест интерфейса LCD  
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task4code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif
@@ -590,7 +590,7 @@ void Init_Task5() {  //создаем задачу
 }
 
 void Task6code(void* pvParameters) {  // Моргание активным пресетом 
-  #if (ENABLE_DEBUG == 1)
+  #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task4code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif  
@@ -702,7 +702,7 @@ void INIT_PS(){
       power_supply[i].volt_decimal[j] = 2;
       power_supply[i].volt_colorbg[j] = TFT_SILVER;
     }
-    for(int j=0; j<COUNT_PRESET; j++){
+    for(int j=0; j<COUNT_RECT_MAIN; j++){
       power_supply[i].volt_main_colorbg[j] = TFT_SILVER;
       power_supply[i].volt_colorbg[0] = TFT_DARKGREEN;    
       power_supply[i].volt_main_colorbg[0] = TFT_DARKGREEN;
@@ -771,16 +771,10 @@ void setup() {
   //Init_Task2(); // Обработка энкодера
   //Init_Task1(); // Обработка принятых данных от клавиатуры
   //Init_Task4(); // Выключение Отложенная задача
-  Init_Task5();
+  //Init_Task5();  // тест интерфейса
   Init_Task6();
 
 }
-
-int sprite_select = 0;
-int sprite_offset = 0;
-int sprite_draw = 0;
-unsigned long tms;
-unsigned long tmst;
 
 void loop() {
 
