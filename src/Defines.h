@@ -9,10 +9,10 @@ String CURRENT_VERSION_SW = "1.03";     // Текущая версиия про�
 String VERSION_SW = "Версия ПО 1.03";   // Текст для отображения
 
 
-#define ENABLE_DEBUG_BLUETOOTH 0  // Если 1 то отладка через bluetooth
-#define ENABLE_DEBUG_UART      0  // Если 1 то отладка обмена по uart включена в SerialBT
+#define ENABLE_DEBUG_BLUETOOTH 1  // Если 1 то отладка через bluetooth
+#define ENABLE_DEBUG_UART      1  // Если 1 то отладка обмена по uart включена в SerialBT
 #define ENABLE_DEBUG           0  // Если 1 то отладка включена в Serial
-#define ENABLE_DEBUG_ENC       0  // Если 1 то отладка энкодера в Serial 
+#define ENABLE_DEBUG_ENC       1  // Если 1 то отладка энкодера в Serial 
 #define ENABLE_DEBUG_TASK      1 
 
 #define INIT_KEY      37     // ключ первого запуска. 0-254, на выбор

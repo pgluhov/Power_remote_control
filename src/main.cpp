@@ -45,9 +45,12 @@ byte crc8_bytes(byte *buffer, byte size);
 #pragma pack(push, 1) // используем принудительное выравнивание
 struct Rx_buff{       // Структура приемник от клавиатуры
   int Row;
-  uint8_t Column;
-  uint8_t RawBits;
-  bool statPress;
+  int Column;
+  int RawBits;
+  bool statPress;   
+  int enc_step=0;
+  int enc_click=0;
+  int enc_held=0;
   byte crc;
 };
 #pragma pack(pop)
@@ -65,10 +68,13 @@ Tx_buff TxBuff;
 QueueHandle_t QueueHandleUartResive; // Определить дескриптор очереди
 const int QueueElementSizeUart = 10;
 typedef struct{
-  int activeRow;         // Номер строки
-  uint8_t activeColumn;  // Номер столбца
-  uint8_t statusColumn;  // Байт с битами всего столбца
-  bool statPress;        // Статус нажата или отпущена кнопка
+  int activeRow;     // Номер строки
+  int activeColumn;  // Номер столбца
+  int statusColumn;  // Байт с битами всего столбца
+  bool statPress;    // Статус нажата или отпущена кнопка
+  int enc_step=0;
+  int enc_click=0;
+  int enc_held=0;
 } message_uart_resive;
 
 
@@ -638,6 +644,9 @@ void IRAM_ATTR serialEvent(){
       message.activeColumn = RxBuff.Column;  // Номер столбца
       message.statusColumn = RxBuff.RawBits; // Байт с битами всего столбца
       message.statPress = RxBuff.statPress;  // Статус нажата или отпущена кнопка
+      message.enc_step = RxBuff.enc_step;  
+      message.enc_click = RxBuff.enc_click; 
+      message.enc_held = RxBuff.enc_held;  
     
       if(QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) > 0){ // проверьте, существует ли очередь И есть ли в ней свободное место
         int ret = xQueueSend(QueueHandleUartResive, (void*) &message, 0);
@@ -647,13 +656,23 @@ void IRAM_ATTR serialEvent(){
           SerialBT.println(message.activeRow); 
           SerialBT.println(message.activeColumn); 
           SerialBT.println(message.statusColumn); 
-          SerialBT.println(message.statPress);      
+          SerialBT.println(message.statPress); 
+          SerialBT.println(message.enc_step);
+          SerialBT.println(message.enc_click);
+          SerialBT.println(message.enc_held);   
           #endif    
           }
-        //else if(ret == errQUEUE_FULL){Serial.println("Не удалось отправить данные в очередь из serialEvent()");
-        //} 
+        else if(ret == errQUEUE_FULL){
+          #if (ENABLE_DEBUG_UART == 1)
+          SerialBT.println("Не удалось отправить данные в очередь из serialEvent()");
+          #endif
+        } 
       }
-      //else if (QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) == 0){Serial.println("Очередь отсутствует или нет свободного места");}
+      else if (QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) == 0){
+        #if (ENABLE_DEBUG_UART == 1)
+        SerialBT.println("Очередь отсутствует или нет свободного места");
+        #endif
+        }
       } 
    else {
       #if (ENABLE_DEBUG_UART == 1)
