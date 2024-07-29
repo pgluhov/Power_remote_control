@@ -646,7 +646,7 @@ void IRAM_ATTR serialEvent(){
       message.statPress = RxBuff.statPress;  // Статус нажата или отпущена кнопка
       message.enc_step = RxBuff.enc_step;  
       message.enc_click = RxBuff.enc_click; 
-      message.enc_held = RxBuff.enc_held;  
+      message.enc_held = RxBuff.enc_held;     
     
       if(QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) > 0){ // проверьте, существует ли очередь И есть ли в ней свободное место
         int ret = xQueueSend(QueueHandleUartResive, (void*) &message, 0);
@@ -765,7 +765,7 @@ void setup() {
   INIT_PWM_IO();
   INIT_DEFAULT_VALUE;
   Serial.setTimeout(5);
-  Serial.begin(1000000);
+  Serial.begin(115200, SERIAL_8N1, 3, 1);
   EEPROM.begin(2048);
   EEPROM.get(0, EE_VALUE); //читаем всё из памяти
   INIT_PS();
