@@ -5,8 +5,8 @@
 
 // ========== ДЕФАЙНЫ НАСТРОЕК ==========
 String DEVICE_NAME = "Power remote LCD control"; // Имя девайса
-String CURRENT_VERSION_SW = "1.04";     // Текущая версиия прошивки 
-String VERSION_SW = "Версия ПО 1.04";   // Текст для отображения
+String CURRENT_VERSION_SW = "1.09";     // Текущая версиия прошивки 
+String VERSION_SW = "Версия ПО 1.09";   // Текст для отображения
 
 
 #define ENABLE_DEBUG_BLUETOOTH 0  // Если 1 то отладка через bluetooth
@@ -30,7 +30,11 @@ String VERSION_SW = "Версия ПО 1.04";   // Текст для отобр�
 
 #define BTN_HALL     33 
 #define ENCODER_A    39 
-#define ENCODER_B    36 
+#define ENCODER_B    36
+#define POWER_SELECT 17 
+
+#define OUT_ON 21
+#define OUT_DU 22
 
 //--------номера IO-------------------
 
