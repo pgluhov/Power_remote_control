@@ -33,8 +33,8 @@ String VERSION_SW = "Версия ПО 1.09";   // Текст для отобр�
 #define ENCODER_B    36
 #define POWER_SELECT 17 
 
-#define OUT_ON 21
-#define OUT_DU 22
+#define OUT_ON 22
+#define OUT_DU 21
 
 //--------номера IO-------------------
 

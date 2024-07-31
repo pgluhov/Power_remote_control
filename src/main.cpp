@@ -211,7 +211,9 @@ void Task1code(void* pvParameters) {  // Обработка принятых д�
   Serial.print("Task1code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif   
-  message_uart_resive message;  
+  message_uart_resive message;   
+  digitalWrite(OUT_ON, LOW);
+  digitalWrite(OUT_DU, LOW);
 
   for (;;) { 
     if(QueueHandleUartResive != NULL){ // Проверка работоспособности просто для того, чтобы убедиться, что очередь действительно существует
@@ -223,19 +225,21 @@ void Task1code(void* pvParameters) {  // Обработка принятых д�
         Enc_click = message.enc_click;
         Enc_held  = message.enc_held;         
         
+        if(message.activeRow == -1){digitalWrite(OUT_DU, LOW);}
         if(message.activeRow != -1){ // обработка нажатия кнопок
-          for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
+          //for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
 
-          if (message.activeRow == 3 && message.activeColumn == 3){power_supply[active_power_supply].volt_colorbg[0] = TFT_DARKGREEN; active_preset=0;} // переходное минимальное
-          if (message.activeRow == 4 && message.activeColumn == 3){power_supply[active_power_supply].volt_colorbg[1] = TFT_DARKGREEN; active_preset=1;} // минимальное
-          if (message.activeRow == 4 && message.activeColumn == 2){power_supply[active_power_supply].volt_colorbg[2] = TFT_DARKGREEN; active_preset=2;} // номинальное
-          if (message.activeRow == 4 && message.activeColumn == 1){power_supply[active_power_supply].volt_colorbg[3] = TFT_DARKGREEN; active_preset=3;} // максимальное
-          if (message.activeRow == 5 && message.activeColumn == 1){power_supply[active_power_supply].volt_colorbg[4] = TFT_DARKGREEN; active_preset=4;} // переходное максимальное
-          if (message.activeRow == 3 && message.activeColumn == 0){} // ДУ
+          if (message.activeRow == 3 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[0] = TFT_DARKGREEN; active_preset=0;} // переходное минимальное
+          if (message.activeRow == 4 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[1] = TFT_DARKGREEN; active_preset=1;} // минимальное
+          if (message.activeRow == 4 && message.activeColumn == 2){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[2] = TFT_DARKGREEN; active_preset=2;} // номинальное
+          if (message.activeRow == 4 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[3] = TFT_DARKGREEN; active_preset=3;} // максимальное
+          if (message.activeRow == 5 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[4] = TFT_DARKGREEN; active_preset=4;} // переходное максимальное
+          if (message.activeRow == 3 && message.activeColumn == 0){digitalWrite(OUT_DU, HIGH);} // ДУ
           if (message.activeRow == 1 && message.activeColumn == 0){  // Вкл/Выкл
               active_work_power++; 
               power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;              
-              if(active_work_power==2){active_work_power=0;} 
+              if(active_work_power==2){active_work_power=0;}               
+              digitalWrite(OUT_ON, active_work_power);
             }                     
           }
         }
@@ -656,7 +660,8 @@ void Task7code(void* pvParameters) {  // Опрос входов
 
     if (OldStatPowerSelect != StatPowerSelect){
       if (StatPowerSelect == 1){
-        active_work_power=0;    // отключить источник  
+        active_work_power=0;    // отключить источник 
+        digitalWrite(OUT_ON, active_work_power); 
         active_power_supply = 1;
         power_supply[active_power_supply].volt_main_colorbg[0] = TFT_SILVER;
         power_supply[active_power_supply].volt_main_colorbg[3] = TFT_DARKGREEN;
@@ -665,7 +670,8 @@ void Task7code(void* pvParameters) {  // Опрос входов
         OldStatPowerSelect = StatPowerSelect;
         }
       if (StatPowerSelect == 0){
-        active_work_power=0;    // отключить источник  
+        active_work_power=0;    // отключить источник 
+        digitalWrite(OUT_ON, active_work_power);  
         active_power_supply = 0;
         power_supply[active_power_supply].volt_main_colorbg[0] = TFT_DARKGREEN;
         power_supply[active_power_supply].volt_main_colorbg[3] = TFT_SILVER;
@@ -764,7 +770,10 @@ void INIT_PWM_IO(){
   pinMode(POWER_SELECT, INPUT_PULLUP);
 
   pinMode(OUT_ON, OUTPUT);
+  //digitalWrite(OUT_ON, LOW);
+
   pinMode(OUT_DU, OUTPUT);
+  //digitalWrite(OUT_DU, LOW);
 }
 
 void INIT_LCD(){
