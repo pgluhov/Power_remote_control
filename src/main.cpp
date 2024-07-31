@@ -19,7 +19,7 @@ TaskHandle_t Task4;
 TaskHandle_t Task5; 
 TaskHandle_t Task6; 
 TaskHandle_t Task7; 
-//TaskHandle_t Task8; 
+TaskHandle_t Task8; 
 
 void Task1code(void* pvParameters);
 void Init_Task1();
@@ -33,10 +33,10 @@ void Task5code(void* pvParameters);
 void Init_Task5();
 void Task6code(void* pvParameters);
 void Init_Task6();
-//void Task7code(void* pvParameters);
-//void Init_Task7();
-//void Task8code(void* pvParameters);
-//void Init_Task8();
+void Task7code(void* pvParameters);
+void Init_Task7();
+void Task8code(void* pvParameters);
+void Init_Task8();
 
 
 void IRAM_ATTR onTimer();
@@ -696,6 +696,32 @@ void Init_Task7() {  //создаем задачу
     0);        /* Указываем пин для данного ядра */
   delay(50);
 }
+
+
+void Task8code(void* pvParameters) {  // Отправка данных на источник
+  #if (ENABLE_DEBUG_TASK == 1)
+  Serial.print("Task7code running on core ");
+  Serial.println(xPortGetCoreID()); 
+  #endif  
+
+  for (;;) {     
+   
+   vTaskDelay(100);
+  }
+}
+
+void Init_Task8() {  //создаем задачу
+  xTaskCreatePinnedToCore(
+    Task8code, /* Функция задачи. */
+    "Task8",   /* Ее имя. */
+    1024,      /* Размер стека функции */
+    NULL,      /* Параметры */
+    2,         /* Приоритет */
+    &Task8,    /* Дескриптор задачи для отслеживания */
+    0);        /* Указываем пин для данного ядра */
+  delay(50);
+}
+
 
 void IRAM_ATTR serialEvent(){   
   #if (ENABLE_DEBUG_UART == 1)  
