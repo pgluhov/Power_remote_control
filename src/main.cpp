@@ -37,6 +37,7 @@ void Task7code(void* pvParameters);
 void Init_Task7();
 void Task8code(void* pvParameters);
 void Init_Task8();
+void SendDataDevice();
 
 
 void IRAM_ATTR onTimer();
@@ -65,6 +66,39 @@ struct Tx_buff{       // Структура для отправки на кла�
 };
 #pragma pack(pop)
 Tx_buff TxBuff;
+
+
+#pragma pack(push, 1) // используем принудительное выравнивание
+struct Tx_buff_Dev{   // Структура для отправки драйвер управления оборудлванием
+  int num;            // номер девайса
+  float volt;         // напраяжение
+  float curr;         // ток
+  int power;          // мощность
+  bool output;        // управление выходом источника
+  bool input;         // управление вхлдом нагрузки
+  int mode;           // режим работы (для нагрузки)
+  int cmd;            // Резерв
+  byte crc;
+};
+#pragma pack(pop)
+Tx_buff_Dev TxBuffDev;
+
+
+#pragma pack(push, 1) // используем принудительное выравнивание
+struct Rx_buff_Dev{   // Структура для отправки драйвер управления оборудлванием
+  int num;            // номер девайса
+  float volt;         // напраяжение
+  float curr;         // ток
+  int power;          // мощность
+  bool output;        // управление выходом источника
+  bool input;         // управление вхлдом нагрузки
+  int mode;           // режим работы (для нагрузки)
+  int cmd;            // Резерв
+  byte crc;
+};
+#pragma pack(pop)
+Rx_buff_Dev RxBuffDev;
+
 
 QueueHandle_t QueueHandleUartResive; // Определить дескриптор очереди
 const int QueueElementSizeUart = 10;
@@ -229,17 +263,18 @@ void Task1code(void* pvParameters) {  // Обработка принятых д�
         if(message.activeRow != -1){ // обработка нажатия кнопок
           //for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
 
-          if (message.activeRow == 3 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[0] = TFT_DARKGREEN; active_preset=0;} // переходное минимальное
-          if (message.activeRow == 4 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[1] = TFT_DARKGREEN; active_preset=1;} // минимальное
-          if (message.activeRow == 4 && message.activeColumn == 2){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[2] = TFT_DARKGREEN; active_preset=2;} // номинальное
-          if (message.activeRow == 4 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[3] = TFT_DARKGREEN; active_preset=3;} // максимальное
-          if (message.activeRow == 5 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[4] = TFT_DARKGREEN; active_preset=4;} // переходное максимальное
+          if (message.activeRow == 3 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[0] = TFT_DARKGREEN; active_preset=0; SendDataDevice();} // переходное минимальное
+          if (message.activeRow == 4 && message.activeColumn == 3){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[1] = TFT_DARKGREEN; active_preset=1; SendDataDevice();} // минимальное
+          if (message.activeRow == 4 && message.activeColumn == 2){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[2] = TFT_DARKGREEN; active_preset=2; SendDataDevice();} // номинальное
+          if (message.activeRow == 4 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[3] = TFT_DARKGREEN; active_preset=3; SendDataDevice();} // максимальное
+          if (message.activeRow == 5 && message.activeColumn == 1){for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;}power_supply[active_power_supply].volt_colorbg[4] = TFT_DARKGREEN; active_preset=4; SendDataDevice();} // переходное максимальное
           if (message.activeRow == 3 && message.activeColumn == 0){digitalWrite(OUT_DU, HIGH);} // ДУ
           if (message.activeRow == 1 && message.activeColumn == 0){  // Вкл/Выкл
               active_work_power++; 
               power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;              
               if(active_work_power==2){active_work_power=0;}               
               digitalWrite(OUT_ON, active_work_power);
+              SendDataDevice();
             }                     
           }
         }
@@ -273,13 +308,14 @@ void Task2code(void* pvParameters) {  // Функции энкодера
    Enc_step=0; 
     power_supply[active_power_supply].volt_preset[active_preset] = power_supply[active_power_supply].volt_preset[active_preset] - val_step_ps[select_step_ps];
       if(power_supply[active_power_supply].volt_preset[active_preset] < 0){power_supply[active_power_supply].volt_preset[active_preset] = 0;}
-
+      SendDataDevice();
       }
 
    if (enc.right()|| Enc_step>0) {  // поворот направо  
    Enc_step=0;    
     power_supply[active_power_supply].volt_preset[active_preset] = power_supply[active_power_supply].volt_preset[active_preset] + val_step_ps[select_step_ps];     
       if(power_supply[active_power_supply].volt_preset[active_preset] > power_supply[active_power_supply].device_max_voltage){power_supply[active_power_supply].volt_preset[active_preset] = power_supply[active_power_supply].device_max_voltage;}      
+      SendDataDevice();
       }
 
    if (enc.leftH()|| Enc_stepH<0) { // поворот налево нажатый
@@ -295,6 +331,7 @@ void Task2code(void* pvParameters) {  // Функции энкодера
         power_supply[active_power_supply].curr_protect[i] = curr_protect;
         }
       }
+   SendDataDevice();
    }
 
    if (enc.rightH()|| Enc_stepH>0){ // поворот направо нажатый
@@ -310,9 +347,10 @@ void Task2code(void* pvParameters) {  // Функции энкодера
           power_supply[active_power_supply].curr_protect[i] = curr_protect;
         }
       }  
+   SendDataDevice();
    }  
 
-   if (enc.hasClicks(2)) {
+   /* if (enc.hasClicks(2)) {
       Serial.println("action 2 clicks");  
       active_work_power=0;    // отключить источник           
       active_power_supply++;
@@ -331,6 +369,7 @@ void Task2code(void* pvParameters) {  // Функции энкодера
         power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;
       }
    }
+*/
 
    if (enc.click()|| Enc_click==1){ 
     Enc_click=0;   
@@ -479,7 +518,7 @@ void Init_Task3() {  //создаем задачу
   delay(500);
 }
 
-void Task4code(void* pvParameters) {  // Выключение Отложенная задача 
+void Task4code(void* pvParameters) {  // РЕЗЕРВ
   #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task4code running on core ");
   Serial.println(xPortGetCoreID()); 
@@ -668,6 +707,7 @@ void Task7code(void* pvParameters) {  // Опрос входов
         for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
         power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;
         OldStatPowerSelect = StatPowerSelect;
+        SendDataDevice();
         }
       if (StatPowerSelect == 0){
         active_work_power=0;    // отключить источник 
@@ -678,6 +718,7 @@ void Task7code(void* pvParameters) {  // Опрос входов
         for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
         power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;
         OldStatPowerSelect = StatPowerSelect;
+        SendDataDevice();
         }
     }
    
@@ -696,7 +737,6 @@ void Init_Task7() {  //создаем задачу
     0);        /* Указываем пин для данного ядра */
   delay(50);
 }
-
 
 void Task8code(void* pvParameters) {  // Отправка данных на источник
   #if (ENABLE_DEBUG_TASK == 1)
@@ -721,7 +761,6 @@ void Init_Task8() {  //создаем задачу
     0);        /* Указываем пин для данного ядра */
   delay(50);
 }
-
 
 void IRAM_ATTR serialEvent(){   
   #if (ENABLE_DEBUG_UART == 1)  
@@ -775,6 +814,47 @@ void IRAM_ATTR serialEvent(){
       #endif
      }
    }  
+}
+
+void IRAM_ATTR serialEvent1(){   
+  #if (DEBUG_RESIVE_UART1 == 1)  
+  Serial.println("Есть данные в прерывании Serial1");  
+  #endif
+  if (Serial1.readBytes((byte*)&RxBuffDev, sizeof(RxBuffDev))) {
+  byte crc = crc8_bytes((byte*)&RxBuffDev, sizeof(RxBuffDev));
+  if (crc == 0) {
+    /*
+    TxDevice.num = RxBuffDev.num;
+    TxDevice.volt = RxBuffDev.volt;
+    TxDevice.curr = RxBuffDev.curr;
+    TxDevice.power = RxBuffDev.power;
+    TxDevice.output = RxBuffDev.output;
+    TxDevice.input = RxBuffDev.input;
+    TxDevice.mode = RxBuffDev.mode;
+    TxDevice.cmd = RxBuffDev.cmd;  
+    transmit_device = true;
+    */
+    #if (DEBUG_RESIVE_UART1 == 1) 
+    Serial.print("RxBuffDev.num ");
+    Serial.println(RxBuffDev.num);
+    Serial.print("RxBuffDev.volt ");
+    Serial.println(RxBuffDev.volt);
+    Serial.print("RxBuffDev.curr ");
+    Serial.println(RxBuffDev.curr);
+    Serial.print("RxBuffDev.power ");
+    Serial.println(RxBuffDev.power);
+    Serial.print("RxBuffDev.output ");
+    Serial.println(RxBuffDev.output);
+    Serial.print("RxBuffDev.input ");
+    Serial.println(RxBuffDev.input);
+    Serial.print("RxBuffDev.mode ");
+    Serial.println(RxBuffDev.mode);
+    Serial.print("RxBuffDev.cmd ");
+    Serial.println(RxBuffDev.cmd);
+    #endif
+  }
+  else {Serial.println("CRC ERROR");}
+  }  
 }
 
 byte crc8_bytes(byte *buffer, byte size) {
@@ -854,9 +934,9 @@ void INIT_DEFAULT_VALUE(){ // Заполняем переменные в EEPROM 
     pass_default.toCharArray(EE_VALUE.pass, 20);      
 
     for(int i=0; i<PSNUMBER; i++){
-      EE_VALUE.device_max_current[i]=30;
-      EE_VALUE.device_max_voltage[i]=100; 
-      EE_VALUE.device_max_power[i]=500;       
+      EE_VALUE.device_max_current[i]=100;
+      EE_VALUE.device_max_voltage[i]=80; 
+      EE_VALUE.device_max_power[i]=1500;       
       
       for(int j=0; j<COUNT_PRESET; j++){
         EE_VALUE.volt_preset[i][j] = 10; 
@@ -867,10 +947,31 @@ void INIT_DEFAULT_VALUE(){ // Заполняем переменные в EEPROM 
     //EEPROM.commit();              // записываем
 }
 
+void SendDataDevice(){
+
+  TxBuffDev.num = active_power_supply;  // номер девайса
+  TxBuffDev.volt = power_supply[active_power_supply].volt_preset[active_preset];   // напраяжение
+  TxBuffDev.curr = power_supply[active_power_supply].curr_protect[active_preset];  // ток
+  TxBuffDev.power = 1500;               // мощность      
+  TxBuffDev.output = active_work_power; // управление выходом источника
+  TxBuffDev.input = 0;   // управление вхлдом нагрузки
+  TxBuffDev.mode = 0;    // режим работы (для нагрузки)
+  TxBuffDev.cmd = 0;     // Резерв
+
+  TxBuffDev.crc = crc8_bytes((byte*)&TxBuffDev, sizeof(TxBuffDev) - 1);
+  Serial1.write((byte*)&TxBuffDev, sizeof(TxBuffDev));  
+}
+
 void setup() {
   INIT_PWM_IO();  
+
   Serial.setTimeout(5);
-  Serial.begin(115200, SERIAL_8N1, 3, 1);
+  Serial.begin(115200, SERIAL_8N1, 3, 1);  
+  delay(10);   
+  Serial1.setTimeout(5);
+  Serial1.begin(115200, SERIAL_8N1, RXPIN, TXPIN);
+  delay(10);
+
   EEPROM.begin(2048);
   EEPROM.get(0, EE_VALUE); //читаем всё из памяти  
   

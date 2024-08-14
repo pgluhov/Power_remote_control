@@ -15,6 +15,8 @@ String VERSION_SW = "Версия ПО 1.09";   // Текст для отобр�
 #define ENABLE_DEBUG_ENC       0  // Если 1 то отладка энкодера в Serial 
 #define ENABLE_DEBUG_TASK      0
 
+#define DEBUG_RESIVE_UART1     1
+
 #define INIT_KEY      37     // ключ первого запуска. 0-254, на выбор
 
 //-------------объявлять ДО ПОДКЛЮЧЕНИЯ БИБЛИОТЕКИ GyverPortal------------------
@@ -35,6 +37,9 @@ String VERSION_SW = "Версия ПО 1.09";   // Текст для отобр�
 #define POWER_SELECT 17 
 #define OUT_ON 22
 #define OUT_DU 21
+
+#define RXPIN  34  
+#define TXPIN  32
 
 //--------номера IO-------------------
 
