@@ -479,8 +479,8 @@ void Task3code(void* pvParameters) {  // Работа LCD
 
   spr.setTextColor(TFT_BLACK, power_supply[active_power_supply].volt_main_colorbg[0]);   
   spr.drawString(txt_PS_LOW, 43, 140, 2);
-  spr.drawString(power_supply[active_power_supply].Text_device_max_voltage, 43, 160, 2); 
-  spr.drawString(power_supply[active_power_supply].Text_device_max_current, 43, 180, 2); 
+  spr.drawString(power_supply[0].Text_device_max_voltage, 43, 160, 2); 
+  spr.drawString(power_supply[0].Text_device_max_current, 43, 180, 2); 
 
   spr.setTextColor(TFT_BLACK, TFT_SILVER);   
   spr.drawFloat(power_supply[active_power_supply].volt_preset[active_preset], power_supply[active_power_supply].volt_decimal[active_preset], 160, 134, 6);
@@ -492,8 +492,8 @@ void Task3code(void* pvParameters) {  // Работа LCD
   
   spr.setTextColor(TFT_BLACK, power_supply[active_power_supply].volt_main_colorbg[3]);     
   spr.drawString(txt_PS_HIGH, 277, 140, 2);
-  spr.drawString(power_supply[active_power_supply].Text_device_max_voltage, 277, 160, 2);
-  spr.drawString(power_supply[active_power_supply].Text_device_max_current, 277, 180, 2); 
+  spr.drawString(power_supply[1].Text_device_max_voltage, 277, 160, 2);
+  spr.drawString(power_supply[1].Text_device_max_current, 277, 180, 2); 
 
 
   tft.pushImageDMA(0, sprite_draw, 320, 60, sprPtr);
@@ -898,6 +898,10 @@ void INIT_PS(){
     power_supply[i].Text_device_max_current = String(EE_VALUE.device_max_current[i])+" A";
     power_supply[i].Text_device_max_power   = String(EE_VALUE.device_max_power[i])+" W";
 
+    power_supply[i].Text_device_max_voltage = String(EE_VALUE.device_max_voltage[i])+" V";
+    power_supply[i].Text_device_max_current = String(EE_VALUE.device_max_current[i])+" A";
+    power_supply[i].Text_device_max_power   = String(EE_VALUE.device_max_power[i])+" W";
+
     power_supply[i].device_max_voltage = EE_VALUE.device_max_voltage[i];
     power_supply[i].device_max_current = EE_VALUE.device_max_current[i];
     power_supply[i].device_max_power   = EE_VALUE.device_max_power[i];
@@ -934,9 +938,13 @@ void INIT_DEFAULT_VALUE(){ // Заполняем переменные в EEPROM 
     pass_default.toCharArray(EE_VALUE.pass, 20);      
 
     for(int i=0; i<PSNUMBER; i++){
-      EE_VALUE.device_max_current[i]=100;
-      EE_VALUE.device_max_voltage[i]=80; 
-      EE_VALUE.device_max_power[i]=1500;       
+    EE_VALUE.device_max_current[0]=100;
+    EE_VALUE.device_max_voltage[0]=80; 
+    EE_VALUE.device_max_power[0]=1500; 
+
+    EE_VALUE.device_max_current[1]=30;
+    EE_VALUE.device_max_voltage[1]=500; 
+    EE_VALUE.device_max_power[1]=1500;       
       
       for(int j=0; j<COUNT_PRESET; j++){
         EE_VALUE.volt_preset[i][j] = 10; 
