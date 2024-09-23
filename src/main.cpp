@@ -1,5 +1,5 @@
 
-// Программа для PCB [ 3411402 ELOAD 5x50W_LCD_rev_1.06 ]
+// Программа для PCB [ 3411550 ESP32_LCD_rev_1.10 ]
 
 #include "Defines.h"
 #define PSNUMBER 2         // Количество подключенных источников
