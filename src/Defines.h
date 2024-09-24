@@ -32,16 +32,23 @@ String VERSION_SW = "Версия ПО 1.10";   // Текст для отобр�
 #define ENCODER_A    39 
 #define ENCODER_B    36
 
-//#define POWER_SELECT 3 
-
 //#define RX_COM  21  
 //#define TX_COM  22
 
 #define OUT_ON 22
 #define OUT_DU 21
 
-#define RXPIN  16  
-#define TXPIN  17
+//Аппартный uart0 
+#define RX0PIN  16  
+#define TX0PIN  17
+
+//Аппартный uart1 
+#define RX1PIN  34  
+#define TX1PIN  32
+
+//Аппартный uart2 
+#define RX2PIN  35  
+#define TX2PIN  25
 
 //--------номера IO-------------------
 

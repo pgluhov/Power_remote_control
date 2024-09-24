@@ -82,7 +82,7 @@ struct Tx_buff_Dev{   // Структура для отправки драйве
   byte crc;
 };
 #pragma pack(pop)
-Tx_buff_Dev TxBuffDev;
+Tx_buff_Dev TxBuffDev, TxBuffOFF;
 
 
 #pragma pack(push, 1) // используем принудительное выравнивание
@@ -208,6 +208,7 @@ uint8_t active_preset = 0;         // Активная позиция пресе
 uint8_t active_power_supply = 0;   // Активный источник
 uint8_t active_work_power = 0;     // Активный источник вкл/выкл
 
+#include "Power_supply.h"
 const char* txt_PS_LOW = "PS_LOW";
 const char* txt_PS_HIGH = "PS_HIGH";
 const char* text_step_10  = "enc. step 10.0 V";
@@ -746,16 +747,10 @@ void Init_Task8() {  //создаем задачу
   delay(50);
 }
 
-void IRAM_ATTR serialEvent(){   
-  #if (ENABLE_DEBUG_UART == 1)  
-  SerialBT.println("Есть данные в прерывании Serial");  
-  #endif
+void IRAM_ATTR serialEvent(){  
   if (Serial.readBytes((byte*)&RxBuff, sizeof(RxBuff))) {
   byte crc = crc8_bytes((byte*)&RxBuff, sizeof(RxBuff));
-  if (crc == 0) {
-    #if (ENABLE_DEBUG_UART == 1)
-    SerialBT.println("CRC PASSED");
-    #endif       
+  if (crc == 0) {    
       message_uart_resive message; 
       message.activeRow = RxBuff.Row;        // Номер строки
       message.activeColumn = RxBuff.Column;  // Номер столбца
@@ -768,74 +763,23 @@ void IRAM_ATTR serialEvent(){
     
       if(QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) > 0){ // проверьте, существует ли очередь И есть ли в ней свободное место
         int ret = xQueueSend(QueueHandleUartResive, (void*) &message, 0);
-        if(ret == pdTRUE){
-          #if (ENABLE_DEBUG_UART == 1)
-          SerialBT.println("serialEvent Отправлены данные в очередь "); 
-          SerialBT.println(message.activeRow); 
-          SerialBT.println(message.activeColumn); 
-          SerialBT.println(message.statusColumn); 
-          SerialBT.println(message.statPress); 
-          SerialBT.println(message.enc_step);
-          SerialBT.println(message.enc_click);
-          SerialBT.println(message.enc_held);   
-          #endif    
+        if(ret == pdTRUE){           
           }
-        else if(ret == errQUEUE_FULL){
-          #if (ENABLE_DEBUG_UART == 1)
-          SerialBT.println("Не удалось отправить данные в очередь из serialEvent()");
-          #endif
+        else if(ret == errQUEUE_FULL){         
         } 
       }
-      else if (QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) == 0){
-        #if (ENABLE_DEBUG_UART == 1)
-        SerialBT.println("Очередь отсутствует или нет свободного места");
-        #endif
+      else if (QueueHandleUartResive != NULL && uxQueueSpacesAvailable(QueueHandleUartResive) == 0){       
         }
       } 
-   else {
-      #if (ENABLE_DEBUG_UART == 1)
-      SerialBT.println("CRC ERROR");
-      #endif
+   else {      
      }
    }  
 }
 
-void IRAM_ATTR serialEvent1(){   
-  #if (DEBUG_RESIVE_UART1 == 1)  
-  Serial.println("Есть данные в прерывании Serial1");  
-  #endif
+void IRAM_ATTR serialEvent1(){  
   if (Serial1.readBytes((byte*)&RxBuffDev, sizeof(RxBuffDev))) {
   byte crc = crc8_bytes((byte*)&RxBuffDev, sizeof(RxBuffDev));
-  if (crc == 0) {
-    /*
-    TxDevice.num = RxBuffDev.num;
-    TxDevice.volt = RxBuffDev.volt;
-    TxDevice.curr = RxBuffDev.curr;
-    TxDevice.power = RxBuffDev.power;
-    TxDevice.output = RxBuffDev.output;
-    TxDevice.input = RxBuffDev.input;
-    TxDevice.mode = RxBuffDev.mode;
-    TxDevice.cmd = RxBuffDev.cmd;  
-    transmit_device = true;
-    */
-    #if (DEBUG_RESIVE_UART1 == 1) 
-    Serial.print("RxBuffDev.num ");
-    Serial.println(RxBuffDev.num);
-    Serial.print("RxBuffDev.volt ");
-    Serial.println(RxBuffDev.volt);
-    Serial.print("RxBuffDev.curr ");
-    Serial.println(RxBuffDev.curr);
-    Serial.print("RxBuffDev.power ");
-    Serial.println(RxBuffDev.power);
-    Serial.print("RxBuffDev.output ");
-    Serial.println(RxBuffDev.output);
-    Serial.print("RxBuffDev.input ");
-    Serial.println(RxBuffDev.input);
-    Serial.print("RxBuffDev.mode ");
-    Serial.println(RxBuffDev.mode);
-    Serial.print("RxBuffDev.cmd ");
-    Serial.println(RxBuffDev.cmd);
-    #endif
+  if (crc == 0) { 
   }
   else {Serial.println("CRC ERROR");}
   }  
@@ -856,14 +800,13 @@ byte crc8_bytes(byte *buffer, byte size) {
 void INIT_PWM_IO(){  
   pinMode(BTN_HALL, INPUT);
   pinMode(ENCODER_A, INPUT);
-  pinMode(ENCODER_B, INPUT);
-  //pinMode(POWER_SELECT, INPUT_PULLUP);
+  pinMode(ENCODER_B, INPUT);  
 
   pinMode(OUT_ON, OUTPUT);
-  //digitalWrite(OUT_ON, LOW);
+  digitalWrite(OUT_ON, LOW);
 
   pinMode(OUT_DU, OUTPUT);
-  //digitalWrite(OUT_DU, LOW);
+  digitalWrite(OUT_DU, LOW);
 }
 
 void INIT_LCD(){
@@ -922,13 +865,13 @@ void INIT_DEFAULT_VALUE(){ // Заполняем переменные в EEPROM 
     pass_default.toCharArray(EE_VALUE.pass, 20);      
 
     for(int i=0; i<PSNUMBER; i++){
-    EE_VALUE.device_max_current[0]=100;
-    EE_VALUE.device_max_voltage[0]=80; 
-    EE_VALUE.device_max_power[0]=1500; 
+    EE_VALUE.device_max_current[0]= PS1_MAX_CURRENT;
+    EE_VALUE.device_max_voltage[0]= PS1_MAX_VOLTAGE; 
+    EE_VALUE.device_max_power[0]  = PS1_MAX_POWER; 
 
-    EE_VALUE.device_max_current[1]=30;
-    EE_VALUE.device_max_voltage[1]=500; 
-    EE_VALUE.device_max_power[1]=1500;       
+    EE_VALUE.device_max_current[1]= PS2_MAX_CURRENT;
+    EE_VALUE.device_max_voltage[1]= PS2_MAX_VOLTAGE; 
+    EE_VALUE.device_max_power[1]  = PS2_MAX_POWER;         
       
       for(int j=0; j<COUNT_PRESET; j++){
         EE_VALUE.volt_preset[i][j] = 10; 
@@ -946,22 +889,54 @@ void SendDataDevice(){
   TxBuffDev.curr = power_supply[active_power_supply].curr_protect[active_preset];  // ток
   TxBuffDev.power = 1500;               // мощность      
   TxBuffDev.output = active_work_power; // управление выходом источника
-  TxBuffDev.input = 0;   // управление вхлдом нагрузки
+  TxBuffDev.input = 0;   // управление выхдом нагрузки
   TxBuffDev.mode = 0;    // режим работы (для нагрузки)
   TxBuffDev.cmd = 0;     // Резерв
-
   TxBuffDev.crc = crc8_bytes((byte*)&TxBuffDev, sizeof(TxBuffDev) - 1);
-  Serial1.write((byte*)&TxBuffDev, sizeof(TxBuffDev));  
+
+  if (active_power_supply == 0){    
+    TxBuffOFF.num = 1;    // номер девайса
+    TxBuffOFF.volt = 0;   // напраяжение
+    TxBuffOFF.curr = 1;   // ток
+    TxBuffOFF.power = 10; // мощность      
+    TxBuffOFF.output = 0; // управление выходом источника
+    TxBuffOFF.input = 0;  // управление выхдом нагрузки
+    TxBuffOFF.mode = 0;   // режим работы (для нагрузки)
+    TxBuffOFF.cmd = 0;    // Резерв
+    TxBuffOFF.crc = crc8_bytes((byte*)&TxBuffOFF, sizeof(TxBuffOFF) - 1);
+    Serial2.write((byte*)&TxBuffOFF, sizeof(TxBuffOFF));
+
+    Serial1.write((byte*)&TxBuffDev, sizeof(TxBuffDev));
+  }
+  if (active_power_supply == 1){
+    TxBuffOFF.num = 0;    // номер девайса
+    TxBuffOFF.volt = 0;   // напраяжение
+    TxBuffOFF.curr = 1;   // ток
+    TxBuffOFF.power = 10; // мощность      
+    TxBuffOFF.output = 0; // управление выходом источника
+    TxBuffOFF.input = 0;  // управление выхдом нагрузки
+    TxBuffOFF.mode = 0;   // режим работы (для нагрузки)
+    TxBuffOFF.cmd = 0;    // Резерв
+    TxBuffOFF.crc = crc8_bytes((byte*)&TxBuffOFF, sizeof(TxBuffOFF) - 1);
+    Serial1.write((byte*)&TxBuffOFF, sizeof(TxBuffOFF));
+
+    Serial2.write((byte*)&TxBuffDev, sizeof(TxBuffDev));
+  }
+  
+    
 }
 
 void setup() {
   INIT_PWM_IO();  
 
   Serial.setTimeout(5);
-  Serial.begin(115200, SERIAL_8N1, 3, 1);  
+  Serial.begin(115200, SERIAL_8N1, RX0PIN, TX0PIN);  // порт клавиатуры
   delay(10);   
   Serial1.setTimeout(5);
-  Serial1.begin(115200, SERIAL_8N1, RXPIN, TXPIN);
+  Serial1.begin(115200, SERIAL_8N1, RX1PIN, TX1PIN); // порт источника 1
+  delay(10);
+  Serial2.setTimeout(5);
+  Serial2.begin(115200, SERIAL_8N1, RX2PIN, TX2PIN); // порт источника 2
   delay(10);
 
   EEPROM.begin(2048);
