@@ -1,3 +1,4 @@
+// Программа для PCB [ 3411550 ESP32_LCD_rev_1.10 ]
 
 #ifndef DEFINES_H
 #define DEFINES_H
@@ -31,7 +32,8 @@ String VERSION_SW = "Версия ПО 1.10";   // Текст для отобр�
 #define ENCODER_A    39 
 #define ENCODER_B    36
 
-//#define POWER_SELECT 17 
+//#define POWER_SELECT 3 
+
 //#define RX_COM  21  
 //#define TX_COM  22
 

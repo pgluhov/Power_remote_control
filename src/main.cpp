@@ -1,4 +1,3 @@
-
 // Программа для PCB [ 3411550 ESP32_LCD_rev_1.10 ]
 
 #include "Defines.h"
@@ -219,6 +218,8 @@ const char* text_step_001 = "enc. step 0.01 V";
 int select_step_ps = 0;
 float val_step_ps[] = {10.0, 1.0, 0.1, 0.01}; // массив значений для изменения напряжений (на шаг)
 String str_step_ps[] = {text_step_10, text_step_1,text_step_01,text_step_001};
+bool StatPowerSelect = false;    // текущий статус переключателя на следующий источник (виртуальный тумблер)
+bool OldStatPowerSelect = false; // прошлый статус переключателя на следующий источник (виртуальный тумблер)
 
 //--------------------------------------------------------------------------------------------
 
@@ -352,26 +353,10 @@ void Task2code(void* pvParameters) {  // Функции энкодера
    SendDataDevice();
    }  
 
-   /* if (enc.hasClicks(2)) {
+   if (enc.hasClicks(2)) {
       Serial.println("action 2 clicks");  
-      active_work_power=0;    // отключить источник           
-      active_power_supply++;
-      if(active_power_supply == PSNUMBER){active_power_supply = 0;}            
-
-      if(active_power_supply == 1){
-        power_supply[active_power_supply].volt_main_colorbg[0] = TFT_SILVER;
-        power_supply[active_power_supply].volt_main_colorbg[3] = TFT_DARKGREEN;
-        for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
-        power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;
-      }
-      if(active_power_supply == 0){
-        power_supply[active_power_supply].volt_main_colorbg[0] = TFT_DARKGREEN;
-        power_supply[active_power_supply].volt_main_colorbg[3] = TFT_SILVER;
-        for(int i=0; i<COUNT_PRESET; i++){power_supply[active_power_supply].volt_colorbg[i] = TFT_SILVER;} // очистить цвет всех пресетов
-        power_supply[active_power_supply].volt_colorbg[active_preset]=TFT_DARKGREEN;
-      }
+      StatPowerSelect = StatPowerSelect ^ 1; // изменяем статус для переключения на следующий источник
    }
-*/
 
    if (enc.click()|| Enc_click==1){ 
     Enc_click=0;   
@@ -688,17 +673,14 @@ void Init_Task6() {  //создаем задачу
   delay(50);
 }
 
-void Task7code(void* pvParameters) {  // Опрос входов 
+void Task7code(void* pvParameters) {  // Опрос входа (виртуальный тумблер)
   #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task7code running on core ");
   Serial.println(xPortGetCoreID()); 
   #endif  
-
-  int OldStatPowerSelect = 0;
-
+  
   for (;;) { 
-    int StatPowerSelect = digitalRead(POWER_SELECT);    
-
+    
     if (OldStatPowerSelect != StatPowerSelect){
       if (StatPowerSelect == 1){
         active_work_power=0;    // отключить источник 
@@ -875,7 +857,7 @@ void INIT_PWM_IO(){
   pinMode(BTN_HALL, INPUT);
   pinMode(ENCODER_A, INPUT);
   pinMode(ENCODER_B, INPUT);
-  pinMode(POWER_SELECT, INPUT_PULLUP);
+  //pinMode(POWER_SELECT, INPUT_PULLUP);
 
   pinMode(OUT_ON, OUTPUT);
   //digitalWrite(OUT_ON, LOW);
