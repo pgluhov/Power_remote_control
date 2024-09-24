@@ -390,7 +390,7 @@ void Task2code(void* pvParameters) {  // Функции энкодера
   #endif
    
    enc.resetState();     
-   vTaskDelay(30);    
+   vTaskDelay(30/portTICK_PERIOD_MS);    
   }
 }
 
@@ -484,13 +484,12 @@ void Task3code(void* pvParameters) {  // Работа LCD
   spr.drawString(power_supply[1].Text_device_max_current, 277, 180, 2); 
 
 
-  tft.pushImageDMA(0, sprite_draw, 320, 60, sprPtr);
-  //vTaskDelay(1);  
+  tft.pushImageDMA(0, sprite_draw, 320, 60, sprPtr);  
   spr.deleteSprite();  // Delete the sprite to free up the RAM
   sprite_select ++;
   if(sprite_select==4){sync_update=1;}
 
-  vTaskDelay(15);
+  vTaskDelay(15/portTICK_PERIOD_MS);
   }
 }
 
@@ -514,7 +513,7 @@ void Task4code(void* pvParameters) {  // РЕЗЕРВ
 
   for (;;) {
    
-   vTaskDelay(100);   
+   vTaskDelay(100/portTICK_PERIOD_MS);   
   }
 }
 
@@ -551,7 +550,7 @@ void Task5code(void* pvParameters) {  // Тест интерфейса LCD
     power_supply[0].volt_preset[0] = power_supply[0].volt_preset[0] + 1.12;
     power_supply[0].volt_colorbg[0] = TFT_DARKGREEN;
     power_supply[0].curr_protect[0] = 25.89;
-    vTaskDelay(5000); 
+    vTaskDelay(5000/portTICK_PERIOD_MS); 
    
    for(int i=0; i<COUNT_PRESET; i++){power_supply[0].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 1;
@@ -559,28 +558,28 @@ void Task5code(void* pvParameters) {  // Тест интерфейса LCD
    power_supply[0].volt_colorbg[1] = TFT_DARKGREEN;
    power_supply[0].curr_protect[1] = 15.12;
    select_step_ps = 1;
-   vTaskDelay(5000); 
+   vTaskDelay(5000/portTICK_PERIOD_MS); 
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[0].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 2;
    power_supply[0].volt_preset[2] = power_supply[0].volt_preset[2] + 3.53;
    power_supply[0].volt_colorbg[2] = TFT_DARKGREEN;
    power_supply[0].curr_protect[2] = 36.46;
-   vTaskDelay(5000);
+   vTaskDelay(5000/portTICK_PERIOD_MS);
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[0].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 3;
    power_supply[0].volt_preset[3] = power_supply[0].volt_preset[3] + 4.81;
    power_supply[0].volt_colorbg[3] = TFT_DARKGREEN;
    power_supply[0].curr_protect[3] = 9.28;
-   vTaskDelay(5000);
+   vTaskDelay(5000/portTICK_PERIOD_MS);
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[0].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 4;
    power_supply[0].volt_preset[4] = power_supply[0].volt_preset[4] + 5.11;
    power_supply[0].volt_colorbg[4] = TFT_DARKGREEN;
    power_supply[0].curr_protect[4] = 100.31;
-   vTaskDelay(5000);
+   vTaskDelay(5000/portTICK_PERIOD_MS);
 
 //---------------------------------------------------------------------------------------
    active_power_supply = 1;
@@ -596,7 +595,7 @@ void Task5code(void* pvParameters) {  // Тест интерфейса LCD
     power_supply[1].volt_preset[0] = power_supply[1].volt_preset[0] + 1.12;
     power_supply[1].volt_colorbg[0] = TFT_DARKGREEN;
     power_supply[1].curr_protect[0] = 25.89;
-    vTaskDelay(3000); 
+    vTaskDelay(3000/portTICK_PERIOD_MS); 
    
    for(int i=0; i<COUNT_PRESET; i++){power_supply[1].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 1;
@@ -604,28 +603,28 @@ void Task5code(void* pvParameters) {  // Тест интерфейса LCD
    power_supply[1].volt_colorbg[1] = TFT_DARKGREEN;
    power_supply[1].curr_protect[1] = 15.12;
    select_step_ps = 3;
-   vTaskDelay(3000); 
+   vTaskDelay(3000/portTICK_PERIOD_MS); 
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[1].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 2;
    power_supply[1].volt_preset[2] = power_supply[1].volt_preset[2] + 3.53;
    power_supply[1].volt_colorbg[2] = TFT_DARKGREEN;
    power_supply[1].curr_protect[2] = 36.46;
-   vTaskDelay(3000);
+   vTaskDelay(3000/portTICK_PERIOD_MS);
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[1].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 3;
    power_supply[1].volt_preset[3] = power_supply[1].volt_preset[3] + 4.81;
    power_supply[1].volt_colorbg[3] = TFT_DARKGREEN;
    power_supply[1].curr_protect[3] = 9.28;
-   vTaskDelay(3000);
+   vTaskDelay(3000/portTICK_PERIOD_MS);
 
    for(int i=0; i<COUNT_PRESET; i++){power_supply[1].volt_colorbg[i] = TFT_SILVER;} 
    active_preset = 4;
    power_supply[1].volt_preset[4] = power_supply[1].volt_preset[4] + 5.11;
    power_supply[1].volt_colorbg[4] = TFT_DARKGREEN;
    power_supply[1].curr_protect[4] = 100.31;
-   vTaskDelay(3000);
+   vTaskDelay(3000/portTICK_PERIOD_MS);
   }
 }
 
@@ -652,13 +651,13 @@ void Task6code(void* pvParameters) {  // Моргание активным пр�
     if(active_work_power==1 && sync_update==1 && power_supply[active_power_supply].volt_colorbg[active_preset]==TFT_DARKGREEN){      
       power_supply[active_power_supply].volt_colorbg[active_preset] = TFT_OLIVE;
       //sync_update=0;
-      vTaskDelay(350);}
+      vTaskDelay(350/portTICK_PERIOD_MS);}
       
     if(active_work_power==1 && sync_update==1 && power_supply[active_power_supply].volt_colorbg[active_preset]==TFT_OLIVE){  
       power_supply[active_power_supply].volt_colorbg[active_preset] = TFT_DARKGREEN;  
       //sync_update=0;    
-      vTaskDelay(350);}
-   vTaskDelay(1);
+      vTaskDelay(350/portTICK_PERIOD_MS);}
+   vTaskDelay(1/portTICK_PERIOD_MS);
   }
 }
 
@@ -707,7 +706,7 @@ void Task7code(void* pvParameters) {  // Опрос входа (виртуаль
         }
     }
    
-   vTaskDelay(100);
+   vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
 
@@ -723,15 +722,27 @@ void Init_Task7() {  //создаем задачу
   delay(50);
 }
 
-void Task8code(void* pvParameters) {  // Отправка данных на источник
+void Task8code(void* pvParameters) {  // Сохранение в EEPROM 
   #if (ENABLE_DEBUG_TASK == 1)
   Serial.print("Task7code running on core ");
   Serial.println(xPortGetCoreID()); 
-  #endif  
+  #endif 
 
-  for (;;) {     
-   
-   vTaskDelay(100);
+  int update_eeprom = 0; 
+
+  for (;;) {      
+    for (int i = 0; i < PSNUMBER; i++) { 
+      for(int j=0; j<COUNT_PRESET; j++){ 
+        if (EE_VALUE.volt_preset[i][j]  != power_supply[i].volt_preset[j])  {EE_VALUE.volt_preset[i][j]  = power_supply[i].volt_preset[j];  update_eeprom = 1;}     
+        if (EE_VALUE.curr_protect[i][j] != power_supply[i].curr_protect[j]) {EE_VALUE.curr_protect[i][j] = power_supply[i].curr_protect[j]; update_eeprom = 1;} 
+       }
+     }
+   if (update_eeprom == 1){    
+    update_eeprom = 0; 
+    EEPROM.put(0, EE_VALUE); // сохраняем
+    EEPROM.commit();         // записываем
+   }
+   vTaskDelay(300000/portTICK_PERIOD_MS); // 5 минут
   }
 }
 
@@ -739,7 +750,7 @@ void Init_Task8() {  //создаем задачу
   xTaskCreatePinnedToCore(
     Task8code, /* Функция задачи. */
     "Task8",   /* Ее имя. */
-    1024,      /* Размер стека функции */
+    4096,      /* Размер стека функции */
     NULL,      /* Параметры */
     2,         /* Приоритет */
     &Task8,    /* Дескриптор задачи для отслеживания */
@@ -931,6 +942,7 @@ void setup() {
 
   Serial.setTimeout(5);
   Serial.begin(115200, SERIAL_8N1, RX0PIN, TX0PIN);  // порт клавиатуры
+  //Serial.begin(115200, SERIAL_8N1, 3, 1);  // Для отладки
   delay(10);   
   Serial1.setTimeout(5);
   Serial1.begin(115200, SERIAL_8N1, RX1PIN, TX1PIN); // порт источника 1
@@ -955,7 +967,7 @@ void setup() {
     while(1) delay(1000);   // Halt at this point as is not possible to continue
   }
   
-  INIT_DEFAULT_VALUE;
+  //INIT_DEFAULT_VALUE;
   INIT_PS();
   INIT_LCD();
   INIT_TIM_ENC();
@@ -966,6 +978,7 @@ void setup() {
   //Init_Task5(); // тест интерфейса
   Init_Task6();   // Моргание активным пресетом 
   Init_Task7();   // Опрос входов 
+  Init_Task8();   // Сохранение в EEPROM 
 
 }
 
