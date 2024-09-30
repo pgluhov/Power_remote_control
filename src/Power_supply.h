@@ -4,7 +4,7 @@
 #define POWER_SUPPLY_H
 #include <Arduino.h>
 
-#define PS1_MAX_CURRENT 60;
+#define PS1_MAX_CURRENT 100;
 #define PS1_MAX_VOLTAGE 80;
 #define PS1_MAX_POWER 1500;
 
